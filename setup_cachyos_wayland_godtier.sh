@@ -53,15 +53,23 @@ echo "[1/20] Instalasi Ekosistem Wayland + Paket Tuning..."
 sudo pacman -Sy --noconfirm archlinux-keyring cachyos-keyring || true
 sudo pacman -Syu --noconfirm --needed \
     fish hyprland waybar swaybg rofi-wayland mako polkit-kde-agent \
-    xdg-desktop-portal-hyprland xdg-desktop-portal-gtk wireplumber \
+    xdg-desktop-portal-hyprland xdg-desktop-portal-gtk wireplumber pipewire-pulse \
     ttf-jetbrains-mono-nerd papirus-icon-theme arc-gtk-theme kvantum qterminal fastfetch scx-scheds \
     ananicy-cpp cachyos-ananicy-rules irqbalance auto-cpufreq pacman-contrib \
     network-manager-applet blueman bluez bluez-utils brightnessctl \
-    fprintd pavucontrol qt5-wayland qt6-wayland hyprlock hypridle wl-clipboard
+    fprintd pavucontrol qt5-wayland qt6-wayland hyprlock hypridle wl-clipboard grim slurp xdg-user-dirs
 
-# Cek nwg-dock-hyprland (Khas CachyOS/AUR)
+# Mengamankan Struktur Direktori dan Font Cache
+xdg-user-dirs-update || true
+fc-cache -fv >/dev/null 2>&1 || true
+
+# Cek nwg-dock-hyprland (Khas CachyOS/AUR Fallback)
 if pacman -Ss nwg-dock-hyprland >/dev/null; then
     sudo pacman -S --noconfirm --needed nwg-dock-hyprland || true
+elif command -v paru >/dev/null; then
+    paru -S --noconfirm --needed nwg-dock-hyprland || true
+elif command -v yay >/dev/null; then
+    yay -S --noconfirm --needed nwg-dock-hyprland || true
 else
     sudo pacman -S --noconfirm --needed nwg-dock || true
 fi
@@ -204,6 +212,10 @@ bindel = , XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
 bindl = , XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 bindel = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
 bindel = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
+
+# Screenshot (Wajib untuk Wayland)
+bind = , Print, exec, grim -g "\$(slurp)" - | wl-copy
+bind = SHIFT, Print, exec, grim - | wl-copy
 EOF
 
 echo ""
