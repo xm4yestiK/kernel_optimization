@@ -103,6 +103,34 @@ fi
 # 4. Hyprland, Waybar & nwg-dock Config
 echo ""
 echo "[4/20] Menyiapkan Konfigurasi Inti Hyprland, Waybar & Dock..."
+mkdir -p ~/.config/hypr ~/.config/waybar ~/.config/rofi
+
+# Injeksi Waybar Config (Mencegah Blank Workspaces karena default Sway)
+[ -f ~/.config/waybar/config ] && cp ~/.config/waybar/config ~/.config/waybar/config.bak || true
+cat << 'EOF' > ~/.config/waybar/config
+{
+    "layer": "top",
+    "position": "top",
+    "height": 30,
+    "modules-left": ["hyprland/workspaces", "hyprland/window"],
+    "modules-center": ["clock"],
+    "modules-right": ["tray", "network", "pulseaudio", "battery"],
+    "hyprland/workspaces": { "format": "{icon}", "on-click": "activate" },
+    "clock": { "format": "{:%H:%M - %d %b}" }
+}
+EOF
+
+# Injeksi Rofi Config (Mencegah GUI jelek)
+[ -f ~/.config/rofi/config.rasi ] && cp ~/.config/rofi/config.rasi ~/.config/rofi/config.rasi.bak || true
+cat << 'EOF' > ~/.config/rofi/config.rasi
+configuration {
+    modi: "drun,run";
+    show-icons: true;
+    font: "JetBrainsMono Nerd Font 12";
+}
+@theme "Arc-Dark"
+EOF
+
 mkdir -p ~/.config/hypr
 [ -f ~/.config/hypr/hyprland.conf ] && cp ~/.config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf.bak || true
 cat << 'EOF' > ~/.config/hypr/hyprland.conf
@@ -366,6 +394,7 @@ cat <<EOF | sudo tee /etc/profile.d/wayland-godtier.sh
 export MESA_NO_ERROR=1
 export MOZ_ENABLE_WAYLAND=1
 export QT_QPA_PLATFORM="wayland;xcb"
+export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 export GDK_BACKEND="wayland,x11"
 export SDL_VIDEODRIVER="wayland,x11"
 export XDG_SESSION_TYPE=wayland
