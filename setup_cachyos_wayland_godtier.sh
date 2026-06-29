@@ -52,10 +52,10 @@ echo "[1/20] Instalasi Ekosistem Wayland + Paket Tuning..."
 sudo pacman -Syu --noconfirm --needed \
     fish hyprland waybar swaybg rofi-wayland mako polkit-kde-agent \
     xdg-desktop-portal-hyprland xdg-desktop-portal-gtk wireplumber \
-    ttf-jetbrains-mono-nerd papirus-icon-theme qterminal fastfetch scx-scheds ananicy-cpp \
-    cachyos-ananicy-rules irqbalance auto-cpufreq pacman-contrib \
+    ttf-jetbrains-mono-nerd papirus-icon-theme arc-gtk-theme qterminal fastfetch scx-scheds \
+    ananicy-cpp cachyos-ananicy-rules irqbalance auto-cpufreq pacman-contrib \
     network-manager-applet blueman bluez bluez-utils brightnessctl \
-    fprintd pavucontrol qt5-wayland qt6-wayland
+    fprintd pavucontrol qt5-wayland qt6-wayland hyprlock hypridle wl-clipboard
 
 # Cek nwg-dock-hyprland (Khas CachyOS/AUR)
 if pacman -Ss nwg-dock-hyprland >/dev/null; then
@@ -115,6 +115,8 @@ exec-once = swaybg -c "#282a36"
 exec-once = waybar
 exec-once = nm-applet --indicator & blueman-applet
 exec-once = nwg-dock-hyprland -d -x -p bottom -l top
+exec-once = hypridle
+exec-once = wl-paste --type text --watch wl-copy
 
 input {
     kb_layout = us
@@ -153,6 +155,74 @@ bindel = , XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
 bindl = , XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
 bindel = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
 bindel = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
+EOF
+
+echo ""
+echo "[4.5/20] Menyiapkan Sistem Keamanan Layar & Kustomisasi GTK Wayland..."
+# Hypridle Config
+[ -f ~/.config/hypr/hypridle.conf ] && cp ~/.config/hypr/hypridle.conf ~/.config/hypr/hypridle.conf.bak || true
+cat << 'EOF' > ~/.config/hypr/hypridle.conf
+general {
+    lock_cmd = pidof hyprlock || hyprlock
+    before_sleep_cmd = loginctl lock-session
+    after_sleep_cmd = hyprctl dispatch dpms on
+}
+listener {
+    timeout = 300
+    on-timeout = loginctl lock-session
+}
+listener {
+    timeout = 330
+    on-timeout = hyprctl dispatch dpms off
+    on-resume = hyprctl dispatch dpms on
+}
+EOF
+
+# Hyprlock Config
+[ -f ~/.config/hypr/hyprlock.conf ] && cp ~/.config/hypr/hyprlock.conf ~/.config/hypr/hyprlock.conf.bak || true
+cat << 'EOF' > ~/.config/hypr/hyprlock.conf
+background {
+    monitor =
+    color = rgba(40, 42, 54, 1.0)
+}
+input-field {
+    monitor =
+    size = 250, 50
+    outline_thickness = 3
+    dots_size = 0.33
+    dots_spacing = 0.15
+    dots_center = true
+    outer_color = rgb(189, 147, 249)
+    inner_color = rgb(40, 42, 54)
+    font_color = rgb(248, 248, 242)
+    fade_on_empty = true
+    placeholder_text = <i>Password...</i>
+    hide_input = false
+    position = 0, -20
+    halign = center
+    valign = center
+}
+label {
+    monitor =
+    text = $TIME
+    color = rgba(248, 248, 242, 1.0)
+    font_size = 50
+    font_family = JetBrainsMonoNL Nerd Font
+    position = 0, 80
+    halign = center
+    valign = center
+}
+EOF
+
+# Menyelamatkan Tema GTK dari keburukan default Adwaita
+mkdir -p ~/.config/gtk-3.0
+cat << 'EOF' > ~/.config/gtk-3.0/settings.ini
+[Settings]
+gtk-theme-name=Arc-Dark
+gtk-icon-theme-name=Papirus-Dark
+gtk-font-name=JetBrainsMono Nerd Font 10
+gtk-cursor-theme-name=Adwaita
+gtk-application-prefer-dark-theme=1
 EOF
 
 # 5. QTerminal Dracula Purple
