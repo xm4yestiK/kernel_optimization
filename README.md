@@ -1,63 +1,52 @@
-# CachyOS LXQt Hybrid God-Tier Setup
+# CachyOS Wayland God-Tier Setup (Hyprland Edition)
 
-Script instalasi dan optimasi komprehensif untuk CachyOS berbasis ekosistem LXQt dan Openbox. Script ini secara dinamis mengkonfigurasi performa, manajemen daya, antarmuka pengguna (UI), dan mitigasi keamanan di level kernel, dirancang khusus untuk laptop (seperti Latitude 5300) maupun desktop.
+Script instalasi, personalisasi, dan optimasi komprehensif untuk OS CachyOS. Dirancang khusus bagi Anda yang ingin mencapai puncak performa (*absolute peak performance*) dengan meninggalkan protokol X11 yang usang dan beralih penuh ke ekosistem **Wayland Murni (Hyprland)**.
 
-## Fitur Utama
+## Fitur Unggulan (Wayland God-Tier)
 
-Script ini bukan sekadar installer, melainkan mesin automasi (deployment engine) dengan fitur perlindungan tingkat lanjut:
+Script ini dirancang untuk menciptakan keseimbangan absolut antara performa latensi-nol, estetika premium, dan keamanan baterai laptop:
 
-1. **Hybrid Smart Power (Manajemen Daya Otomatis)**
-   - Otomatis beralih ke profil performa maksimal (turbo auto) saat tersambung ke pengisi daya.
-   - Beralih ke penghematan baterai ekstrem (powersave, turbo mati) saat menggunakan baterai, diatur sepenuhnya oleh `auto-cpufreq`.
-   - Menghapus daemon daya yang saling berkonflik (TLP, power-profiles-daemon, cpupower bawaan).
+1. **Hyprland Murni & TTY Autologin (Zero RAM Login)**
+   - Display Manager berat (seperti SDDM atau GDM) **dimatikan secara permanen**.
+   - Laptop akan masuk secara otomatis (Autologin) via TTY hitam, dan langsung ditembak ke dalam sesi Hyprland menggunakan injeksi *Fish Shell*. Ini menghemat hingga 100MB RAM.
 
-2. **Deteksi Hardware Dinamis & Injeksi Polybar**
-   - Mendeteksi vendor CPU dan GPU (Intel/AMD) secara real-time.
-   - Menyuntikkan nama antarmuka WiFi, baterai, dan kartu backlight yang tepat ke dalam konfigurasi tema Polybar secara otomatis. Ini menjamin Polybar selalu berfungsi 100% pada mesin apa pun.
+2. **Panel & Dock Modern (Tanpa Kompositor Tambahan)**
+   - Menggunakan **Waybar** (panel cerdas pendeteksi WiFi/Baterai) dan **nwg-dock-hyprland** sebagai navigasi utama.
+   - Skrip ini otomatis menambal *bug* "Blank Workspace" bawaan Waybar untuk memastikan Waybar dan Hyprland berkomunikasi sempurna.
 
-3. **Perlindungan Kernel & X11 Anti-Blackscreen**
-   - Menangani X11 secara dinamis: Mencegah Black Screen pada sistem Intel modern dengan memeriksa ketersediaan driver lawas sebelum memaksakan fitur `TearFree`.
-   - Dukungan Universal Initramfs: Otomatis mendeteksi dan menggunakan `mkinitcpio` atau `dracut` sesuai dengan sistem Anda untuk memastikan injeksi parameter GPU di awal proses booting (Early KMS).
+3. **Hybrid Smart Power & Idle Security (Perlindungan Baterai)**
+   - Diatur otomatis oleh `auto-cpufreq` (Turbo Auto saat di-*charge*, Powersave tanpa turbo saat pakai baterai).
+   - Layar otomatis redup saat ditinggalkan, dan sistem akan mengunci (*lock*) secara agresif dengan **Hyprlock** & **Hypridle** sebelum laptop masuk ke mode tidur (suspend), mencegah kebocoran keamanan privasi saat di tempat umum.
 
-4. **Proteksi Kehilangan Data (Auto-Backup)**
-   - Melindungi pengaturan pengguna yang sudah ada. Sebelum menimpa konfigurasi LXQt, Firefox, atau QTerminal, script otomatis membuat salinan cadangan (`.bak`).
+4. **Integrasi Media & Wayland Portals (Anti-Freeze)**
+   - Semua tombol *Media Keys* laptop (Brightness, Volume, Mute) dihidupkan paksa melalui *keybinds* Hyprland.
+   - Menginjeksi **XDG Desktop Portals** dan daemon **DBus**. Dijamin tidak akan ada aplikasi Flatpak atau *Screen Sharing* (Discord/OBS) yang mogok atau layar nge- *freeze*.
 
-5. **Optimasi Sistem Tingkat Lanjut**
-   - **Sysctl & I/O:** Memaksa parameter latensi rendah, MGLRU, TCP BBRv3, THP (Transparent Huge Pages), dan penjadwal disk `kyber` untuk SSD/NVMe.
-   - **Firefox Gecko Tuning:** Menyuntikkan 25+ parameter rahasia ke profil Firefox (dan Cachy-Browser), bahkan memaksa pembuatan profil dasar jika sistem masih dalam keadaan perawan (fresh install).
-   - **Touchpad & Konektivitas:** Menanamkan konfigurasi `libinput` untuk mengaktifkan Tap-to-Click dan Natural Scrolling secara permanen. Mendaftarkan daemon Bluetooth dan NTP (sinkronisasi waktu).
+5. **Proteksi UI (Keindahan yang Konsisten)**
+   - Memaksa variabel khusus agar aplikasi Qt (seperti QTerminal) tidak menggambar bingkai ganda (*Double Titlebar Bug*).
+   - Menyuntikkan tema standar `Arc-Dark` dan *icon* `Papirus` ke modul GTK, memastikan tidak ada aplikasi (seperti Pengaturan Suara) yang mundur ke tema putih Adwaita lawas.
+   - Memperbaiki memori "Copy-Paste" (Clipboard) di Wayland menggunakan `wl-clipboard` agar teks tidak hilang saat aplikasi ditutup.
 
-6. **Absolute Shutdown Cleanup**
-   - Memasukkan modul systemd khusus (`shutdown-cleanup.service`) yang berjalan setiap kali laptop dimatikan.
-   - Modul ini membersihkan cache pacman, paket yatim piatu (orphans), cache aplikasi pengguna, dan melakukan TRIM pada SSD (Write-Amplification minimal).
+6. **Tuning Kernel & Gecko Engine Terpusat**
+   - TCP BBRv3, *Transparent Huge Pages* (THP), *MGLRU*, I/O Scheduler SSD `kyber`, hingga latensi memori agresif.
+   - Injeksi 25+ parameter kustom ke profil Firefox / Cachy-Browser bahkan jika browser belum pernah dibuka sama sekali (*headless generation*).
 
-## Pencegahan Fatal Error
+7. **Pembersih Sampah Otomatis (Absolute Shutdown Cleanup)**
+   - Sebuah modul systemd khusus berjalan setiap kali Anda mematikan laptop, memastikan *cache* pacman, yatim piatu (*orphans*), dan jurnal lawas terhapus secara otomatis, diakhiri dengan *fstrim*.
 
-Script ini menanamkan mekanisme perlindungan ketat:
-- **Root-Blocker:** Menolak untuk berjalan jika dieksekusi dengan perintah `sudo bash ...`. Ini melindungi struktur konfigurasi direktori `/root` dari kerusakan.
-- **Kemandirian Resolusi Paket:** Menghindari paket-paket *ghosting* (seperti `systemd-oomd` atau kustom Kvantum theme) dari pengelola paket Pacman agar script tidak crash.
+## Peringatan Keras
 
-## Cara Penggunaan
+- **Root-Blocker:** JANGAN PERNAH menjalankan skrip ini menggunakan `sudo bash`. Skrip ini memiliki sensor pendeteksi root dan akan mati otomatis. Skrip dirancang untuk dijalankan sebagai *user* biasa (akan meminta password `sudo` secara elegan di dalam terminal).
+- Skrip ini diperuntukkan untuk **Fresh Install** CachyOS (atau sistem yang masih relatif baru) demi menghindari bentrokan konfigurasi ekstensif. Sistem auto-backup bawaan skrip ini (`.bak`) akan berusaha menyelamatkan konfigurasi lama Anda jika ditemukan.
 
-1. **Persiapan (Opsional)**
-   Pastikan sistem Anda sudah terkoneksi ke internet.
+## Panduan Eksekusi
 
-2. **Eksekusi Script**
-   Jalankan script menggunakan akun pengguna biasa (jangan gunakan `sudo` saat memulai). Script akan meminta kata sandi Anda setiap kali dibutuhkan hak akses root.
+Jalankan perintah berikut di dalam terminal Anda:
 
-   ```bash
-   cd ~/Scripts/CACHYOS_SETUP
-   chmod +x setup_cachyos_lxqt_hybrid.sh
-   ./setup_cachyos_lxqt_hybrid.sh
-   ```
+```bash
+cd ~/Scripts/CACHYOS_SETUP
+chmod +x setup_cachyos_wayland_godtier.sh
+./setup_cachyos_wayland_godtier.sh
+```
 
-3. **Reboot**
-   Setelah proses selesai dan log terminal menunjukan keberhasilan kompilasi, lakukan _reboot_ sistem untuk menerapkan seluruh modul, daemon, dan injeksi kernel.
-
-## Struktur Lingkungan
-
-- **Shell Default:** Fish Shell
-- **Tampilan Utama:** LXQt + Openbox
-- **Dock & Panel:** Plank & Polybar (Panel LXQt bawaan dinonaktifkan)
-- **Skema Warna:** Arc Dark (Sistem) & Dracula Purple (Terminal)
-- **Integrasi Login:** Modul otentikasi sidik jari (`pam_fprintd.so`) disuntikkan ke SDDM dan Login TTY.
+Setelah log terminal menyatakan instalasi berhasil (Tahap 20), silakan *Reboot* mesin Anda. Jangan panik jika Anda tidak melihat layar SDDM. Terminal TTY akan berkedip singkat, dan membawa Anda langsung ke Desktop Wayland masa depan.
