@@ -57,7 +57,7 @@ echo "[1/20] Instalasi Ekosistem Wayland + Paket Tuning..."
 # Mengamankan PGP Keyring dari kegagalan sinkronisasi fresh install
 sudo pacman -Sy --noconfirm archlinux-keyring cachyos-keyring || true
 sudo pacman -Syu --noconfirm --needed \
-    fish hyprland waybar hyprpaper rofi-wayland mako hyprpolkitagent \
+    fish hyprland waybar swaybg rofi-wayland mako hyprpolkitagent \
     xdg-desktop-portal-hyprland xdg-desktop-portal-gtk wireplumber pipewire-pulse pipewire-alsa pipewire-jack \
     ttf-jetbrains-mono-nerd ttf-font-awesome papirus-icon-theme arc-gtk-theme kvantum qterminal fastfetch scx-scheds \
     ananicy-cpp cachyos-ananicy-rules irqbalance auto-cpufreq pacman-contrib \
@@ -155,11 +155,7 @@ configuration {
 EOF
 
 mkdir -p ~/.config/hypr
-# Konfigurasi Hyprpaper (Wallpaper)
-cat << 'EOF' > ~/.config/hypr/hyprpaper.conf
-splash = false
-ipc = off
-EOF
+# Pembersihan Blok Hyprpaper (Reverted ke Swaybg)
 
 [ -f ~/.config/hypr/hyprland.conf ] && cp ~/.config/hypr/hyprland.conf ~/.config/hypr/hyprland.conf.bak || true
 cat << 'EOF' > ~/.config/hypr/hyprland.conf
@@ -174,7 +170,7 @@ env = XCURSOR_THEME,Adwaita
 exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 # Menggunakan agen polkit native Hyprland standar 2026
 exec-once = systemd-cat -t hyprpolkitagent /usr/lib/hyprpolkitagent
-exec-once = hyprpaper
+exec-once = swaybg -c "#282a36"
 exec-once = waybar
 # Pemisahan proses background untuk mencegah zombie process di Hyprland
 exec-once = nm-applet --indicator
@@ -458,6 +454,8 @@ cat <<EOF | sudo tee /etc/profile.d/wayland-godtier.sh
 export MESA_NO_ERROR=1
 export MOZ_ENABLE_WAYLAND=1
 export LIBVA_DRIVER_NAME=iHD
+export ELECTRON_OZONE_PLATFORM_HINT=auto
+export MOZ_USE_XINPUT2=1
 export QT_QPA_PLATFORM="wayland;xcb"
 export QT_WAYLAND_DISABLE_WINDOWDECORATION=1
 export QT_STYLE_OVERRIDE=kvantum
