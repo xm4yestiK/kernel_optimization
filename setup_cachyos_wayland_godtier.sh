@@ -51,6 +51,7 @@ echo ""
 echo "[1/20] Instalasi Ekosistem Wayland + Paket Tuning..."
 sudo pacman -Syu --noconfirm --needed \
     fish hyprland waybar swaybg rofi-wayland mako polkit-kde-agent \
+    xdg-desktop-portal-hyprland xdg-desktop-portal-gtk wireplumber \
     ttf-jetbrains-mono-nerd papirus-icon-theme qterminal fastfetch scx-scheds ananicy-cpp \
     cachyos-ananicy-rules irqbalance auto-cpufreq pacman-contrib \
     network-manager-applet blueman bluez bluez-utils brightnessctl \
@@ -107,8 +108,10 @@ mkdir -p ~/.config/hypr
 cat << 'EOF' > ~/.config/hypr/hyprland.conf
 monitor=,preferred,auto,1
 
-# Autostart Daemons
+# Autostart Daemons & Integrasi Portal Wayland
+exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP
 exec-once = /usr/lib/polkit-kde-authentication-agent-1
+exec-once = swaybg -c "#282a36"
 exec-once = waybar
 exec-once = nm-applet --indicator & blueman-applet
 exec-once = nwg-dock-hyprland -d -x -p bottom -l top
@@ -143,6 +146,13 @@ bind = SUPER, Q, killactive,
 bind = SUPER, M, exit, 
 bind = SUPER, V, togglefloating, 
 bind = SUPER, R, exec, rofi -show drun
+
+# Media & Brightness Control (Wajib untuk Laptop)
+bindel = , XF86AudioRaiseVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%+
+bindel = , XF86AudioLowerVolume, exec, wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindl = , XF86AudioMute, exec, wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindel = , XF86MonBrightnessUp, exec, brightnessctl set 5%+
+bindel = , XF86MonBrightnessDown, exec, brightnessctl set 5%-
 EOF
 
 # 5. QTerminal Dracula Purple
@@ -211,8 +221,8 @@ echo ""
 echo "[7/20] Menyuntikkan Tuning Mentok Engine Gecko..."
 killall -9 firefox cachy-browser 2>/dev/null || true
 sleep 0.5
-command -v firefox >/dev/null && firefox -CreateProfile "default" 2>/dev/null || true
-command -v cachy-browser >/dev/null && cachy-browser -CreateProfile "default" 2>/dev/null || true
+command -v firefox >/dev/null && firefox --headless -CreateProfile "default" 2>/dev/null || true
+command -v cachy-browser >/dev/null && cachy-browser --headless -CreateProfile "default" 2>/dev/null || true
 for PROFILE_DIR in ~/.mozilla/firefox/*.default* ~/.cachy/cachy-browser/*.default* ~/.config/mozilla/firefox/*.default*; do
     if [ -d "$PROFILE_DIR" ]; then
         [ -f "$PROFILE_DIR/user.js" ] && cp "$PROFILE_DIR/user.js" "$PROFILE_DIR/user.js.bak" || true
