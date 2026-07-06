@@ -1,63 +1,55 @@
-# CachyOS Wayland Setup (Hyprland Edition) - by m4yestiK
+# CachyOS Setup & Optimization - by m4yestiK
 
-A comprehensive installation, personalization, and optimization script for CachyOS. Designed specifically for users who want to achieve absolute peak performance by completely abandoning the legacy X11 protocol and transitioning to a **Pure Wayland Ecosystem (Hyprland)**.
+A comprehensive, highly-optimized installation and personalization script for CachyOS. This script is engineered to bring your desktop to peak performance and aesthetics with a centralized setup architecture.
 
-## Key Features
+## 🚀 Features & Architecture
 
-This script is engineered to create the absolute balance between zero-latency performance, premium aesthetics, and laptop battery life:
+This repository contains the master setup script (`run.sh`) which provides a dynamic, interactive menu to configure your system into one of three distinct Desktop Environments (DE):
 
-1. **Pure Hyprland & TTY Autologin (Zero RAM Login)**
-   - Heavy Display Managers (like SDDM or GDM) are **permanently disabled**.
-   - The laptop will automatically log in via a black TTY and instantly drop into a Hyprland session using a *Fish Shell* injection. This saves up to 100MB of RAM.
+### 1. KDE Plasma (X11 Edition)
+- Installs the full KDE Plasma suite optimized for X11.
+- Injects custom `kdeglobals`, `kwinrc`, and `kcminputrc`.
+- Bypasses SDDM directly using a TTY `startx` injection for a zero-RAM login sequence.
 
-2. **Modern Panel & Dock (No Extra Compositors)**
-   - Utilizes **Waybar** (smart panel with WiFi/Battery detection) and **nwg-dock-hyprland** as the primary navigation.
-   - The script automatically patches Waybar's built-in "Blank Workspace" bug to ensure perfect communication between Waybar and Hyprland.
+### 2. Hyprland (Wayland Edition)
+- A pure Wayland ecosystem utilizing `hyprland`, `waybar`, and `mako`.
+- Automatic Hyprland variable injections for QT (`QT_QPA_PLATFORM=wayland`) and GTK.
+- Uses `hypridle` and `hyprlock` for modern power management and idle security.
 
-3. **Hybrid Smart Power & Idle Security (Battery Protection)**
-   - Automatically managed by `auto-cpufreq` (Turbo Auto when plugged in, Powersave without turbo on battery).
-   - The screen automatically dims when left idle, and the system locks aggressively with **Hyprlock** & **Hypridle** before suspending, preventing privacy leaks in public spaces.
+### 3. LXQt Dracula (The Flagship Minimalist X11 Edition)
+- An ultra-lightweight, visually stunning LXQt desktop powered by Openbox.
+- **Polybar (Shapes/Cachy Theme):** Replaces the standard `lxqt-panel` (which is forcefully masked via `Hidden=true`) with a beautiful, dynamic top bar.
+- **Plank Dock:** A transparent, macOS-like dock permanently anchored to the session using `env XDG_SESSION_TYPE=x11`.
+- **Picom Compositor:** Injects transparency, shadows, and window animations into the rigid LXQt environment.
+- **QTerminal Hardening:** Immersive borderless mode (`Borderless=true`), hidden menu bars, and deactivated blue active borders for a pure Dracula aesthetic.
+- **Global GTK Styling:** Automatically enforces `Papirus-Dark` icons and `Arc-Dark` widgets across all GTK applications.
 
-4. **Media Integration & Wayland Portals (Anti-Freeze)**
-   - All laptop *Media Keys* (Brightness, Volume, Mute) are forcibly bound through Hyprland keybinds.
-   - Injects **XDG Desktop Portals** and the **DBus** daemon. Guarantees no Flatpak apps or screen sharing (Discord/OBS) will crash or freeze your screen.
+## 🛠️ Specialized Utilities
 
-5. **UI Protection (Consistent Aesthetics)**
-   - Forces specific variables so Qt applications (like QTerminal) do not draw double borders (*Double Titlebar Bug*).
-   - Injects the standard `Arc-Dark` theme and `Papirus` icons into GTK modules, ensuring no apps (like Audio Settings) revert to the legacy white Adwaita theme.
-   - Fixes Wayland's clipboard using `wl-clipboard` and `cliphist` so copied text is never lost when an application closes.
+Alongside the master installer, this repository contains lethal, standalone scripts designed for deep system maintenance:
 
-6. **Centralized Kernel & Gecko Engine Tuning**
-   - Implements TCP BBRv3, *Transparent Huge Pages* (THP), *MGLRU*, `kyber` SSD I/O Scheduler, and aggressive memory latency tuning.
-   - Injects 25+ custom parameters into the Firefox / Cachy-Browser profile even if the browser has never been opened (*headless generation*).
+- **`deep_clean.sh` (Absolute SSD Cleanser)**
+  A 100% safe, automated garbage collector. It aggressively clears Pacman orphan packages, sweeps systemd journals, annihilates unused Podman/Docker containers (`prune -a -f`), clears AUR caches, and triggers a comprehensive SSD Fstrim. Perfect for reclaiming gigabytes of disk space instantly.
 
-7. **Automated Garbage Collector (Absolute Shutdown Cleanup)**
-   - A custom systemd module runs every time you shut down the laptop, ensuring pacman cache, orphaned packages, and old journals are automatically deleted, concluding with an *fstrim*.
+- **`storage_radar.sh` (Storage Forensics)**
+  A lightweight, real-time radar that probes the largest space hogs on your system. It instantly queries the exact Gigabyte consumption of your Virtual Machines (Libvirt), Podman layers (optimized via direct partition reads), Programming Projects, and Documents, displaying it in a color-coded terminal dashboard.
 
-## Strict Warnings
+## ⚙️ Universal Optimizations (Applied to All DEs)
 
-- **Root-Blocker:** NEVER run this script using `sudo bash`. This script has a built-in root detector and will self-terminate. It is designed to be run as a standard *user* (it will elegantly request your `sudo` password within the terminal).
-- This script is intended for a **Fresh Install** of CachyOS (or a relatively new system) to avoid extensive configuration conflicts. The script's built-in auto-backup system (`.bak`) will attempt to save your old configurations if found.
+- **Pure TTY Autologin:** Completely abandons heavy Display Managers (SDDM/GDM) in favor of a raw `.xinitrc` or `.bash_profile` autologin, saving ~100MB of RAM.
+- **Fingerprint (PAM) Integration:** Automatically injects `fprintd` into `system-local-login` for instant fingerprint authentication across the OS.
+- **Firefox Telemetry Purge:** Injects `user.js` to forcefully disable Pocket, Telemetry, and unnecessary network requests.
 
-## OS Installation Guide (Calamares)
+## 📥 Execution Guide
 
-To ensure this script works with maximum cleanliness (bloat-free), please follow these instructions when installing CachyOS from a USB drive (Calamares Installer):
-
-1. **The Ultimate Path (Recommended):** 
-   Select the **"No Desktop Environment"**, **"Minimal/CLI"**, or **"Base System Only"** option (if available). This installs a pure system without a graphical interface. This script will build the Hyprland interface from scratch.
-2. **The Standard Path (Alternative):**
-   If the installer forces you to select a Desktop Environment, choose **Hyprland** or **Sway**. This script will overwrite its configurations to a premium version and kill its default SDDM.
-3. **Absolute Warning:**
-   **NEVER** select LXQt, KDE Plasma (X11), XFCE, or Openbox. Choosing them means polluting your system with legacy packages (`xorg-server`) which will ultimately be forcefully disabled by this script.
-
-## Execution Guide
-
-Run the following commands in your terminal:
+Clone this repository and run the master script as a standard user (never as `root`, the script will ask for `sudo` internally):
 
 ```bash
-cd ~/Scripts/CACHYOS_SETUP
-chmod +x setup_cachyos_wayland.sh
-./setup_cachyos_wayland.sh
+cd ~/Dokumen/LAINNYA/scripts/CACHYOS_SETUP
+chmod +x run.sh
+./run.sh
 ```
 
-After the terminal log states the installation is successful (Stage 20), please *Reboot* your machine. Do not panic if you don't see the SDDM screen. The TTY terminal will flash briefly and take you straight into the Wayland Desktop of the future.
+Follow the interactive menu to select your desired Desktop Environment. After the script successfully completes (Stage 20), simply reboot your machine. 
+
+Welcome to the absolute pinnacle of CachyOS.
