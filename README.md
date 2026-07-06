@@ -1,4 +1,4 @@
-# Linux OS Kernel Setup & Optimization - by m4yestiK
+# Linux OS Setup & Optimization - by m4yestiK
 
 A comprehensive, highly-optimized installation and personalization script for CachyOS. This script is engineered to bring your desktop to peak performance and aesthetics with a centralized setup architecture.
 
