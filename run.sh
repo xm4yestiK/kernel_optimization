@@ -671,9 +671,9 @@ governor = powersave
 energy_performance_preference = power
 turbo = never
 [charger]
-governor = performance
-energy_performance_preference = performance
-turbo = auto
+governor = powersave
+energy_performance_preference = balance_power
+turbo = never
 EOF
 
 # 11. iGPU Driver
